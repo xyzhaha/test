@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.tradesystem.trade.infrastructure.mapper.OrderItemMapper">
+
+    <resultMap id="OrderItemResultMap" type="com.example.tradesystem.trade.domain.model.OrderItem">
+        <id property="orderItemId" column="order_item_id"/>
+        <result property="orderId" column="order_id"/>
+        <result property="merchantId" column="merchant_id"/>
+        <result property="sku" column="sku"/>
+        <result property="productName" column="product_name"/>
+        <result property="quantity" column="quantity"/>
+        <result property="unitPrice" column="unit_price" typeHandler="com.example.tradesystem.user.infrastructure.mapper.MoneyTypeHandler"/>
+        <result property="totalPrice" column="total_price" typeHandler="com.example.tradesystem.user.infrastructure.mapper.MoneyTypeHandler"/>
+    </resultMap>
+
+    <insert id="batchInsert">
+        INSERT INTO order_item (order_item_id, order_id, merchant_id, sku, product_name, quantity, unit_price, total_price)
+        VALUES
+        <foreach collection="items" item="item" separator=",">
+            (#{item.orderItemId}, #{item.orderId}, #{item.merchantId}, #{item.sku}, #{item.productName}, 
+             #{item.quantity}, #{item.unitPrice, typeHandler=com.example.tradesystem.user.infrastructure.mapper.MoneyTypeHandler}, #{item.totalPrice, typeHandler=com.example.tradesystem.user.infrastructure.mapper.MoneyTypeHandler})
+        </foreach>
+    </insert>
+
+    <insert id="insert">
+        INSERT INTO order_item (order_item_id, order_id, merchant_id, sku, product_name, quantity, unit_price, total_price)
+        VALUES (#{orderItemId}, #{orderId}, #{merchantId}, #{sku}, #{productName}, #{quantity}, #{unitPrice, typeHandler=com.example.tradesystem.user.infrastructure.mapper.MoneyTypeHandler}, #{totalPrice, typeHandler=com.example.tradesystem.user.infrastructure.mapper.MoneyTypeHandler})
+    </insert>
+
+    <select id="selectByOrderId" resultMap="OrderItemResultMap">
+        SELECT order_item_id, order_id, merchant_id, sku, product_name, quantity, unit_price, total_price
+        FROM order_item
+        WHERE order_id = #{orderId}
+    </select>
+
+</mapper>

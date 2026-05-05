@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.tradesystem.user.infrastructure.mapper.RechargeRecordMapper">
+
+    <resultMap id="RechargeRecordResultMap" type="com.example.tradesystem.user.domain.model.RechargeRecord">
+        <id property="rechargeId" column="recharge_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="amount" column="amount" typeHandler="com.example.tradesystem.user.infrastructure.mapper.MoneyTypeHandler"/>
+        <result property="requestId" column="request_id"/>
+        <result property="status" column="status" typeHandler="org.apache.ibatis.type.EnumTypeHandler"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <insert id="insert">
+        INSERT INTO recharge_record (recharge_id, user_id, amount, request_id, status)
+        VALUES (#{rechargeId}, #{userId}, #{amount, typeHandler=com.example.tradesystem.user.infrastructure.mapper.MoneyTypeHandler}, #{requestId}, #{status})
+    </insert>
+
+    <select id="selectByRequestId" resultMap="RechargeRecordResultMap">
+        SELECT recharge_id, user_id, amount, request_id, status, created_at
+        FROM recharge_record
+        WHERE request_id = #{requestId}
+    </select>
+
+    <select id="selectByUserId" resultMap="RechargeRecordResultMap">
+        SELECT recharge_id, user_id, amount, request_id, status, created_at
+        FROM recharge_record
+        WHERE user_id = #{userId}
+        ORDER BY created_at DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="countByUserId" resultType="long">
+        SELECT COUNT(*)
+        FROM recharge_record
+        WHERE user_id = #{userId}
+    </select>
+
+    <select id="selectByOrderId" resultMap="RechargeRecordResultMap">
+        SELECT recharge_id, user_id, amount, request_id, status, created_at
+        FROM recharge_record
+        WHERE request_id = #{orderId}
+        LIMIT 1
+    </select>
+
+</mapper>

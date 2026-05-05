@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.tradesystem.merchant.infrastructure.mapper.MerchantAccountMapper">
+
+    <resultMap id="MerchantAccountResultMap" type="com.example.tradesystem.merchant.domain.model.MerchantAccount">
+        <id property="merchantId" column="merchant_id"/>
+        <result property="balance" column="balance" typeHandler="com.example.tradesystem.user.infrastructure.mapper.MoneyTypeHandler"/>
+        <result property="totalIncome" column="total_income" typeHandler="com.example.tradesystem.user.infrastructure.mapper.MoneyTypeHandler"/>
+        <result property="currency" column="currency"/>
+        <result property="version" column="version"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <select id="selectById" resultMap="MerchantAccountResultMap">
+        SELECT merchant_id, balance, total_income, currency, version, created_at, updated_at
+        FROM merchant_account
+        WHERE merchant_id = #{merchantId}
+    </select>
+
+    <insert id="insert">
+        INSERT INTO merchant_account (merchant_id, balance, total_income, currency, version)
+        VALUES (#{merchantId}, #{balance, typeHandler=com.example.tradesystem.user.infrastructure.mapper.MoneyTypeHandler}, #{totalIncome, typeHandler=com.example.tradesystem.user.infrastructure.mapper.MoneyTypeHandler}, #{currency}, #{version})
+    </insert>
+
+    <update id="increaseBalanceWithVersion">
+        UPDATE merchant_account
+        SET balance = balance + #{amount},
+            total_income = total_income + #{amount},
+            version = version + 1,
+            updated_at = NOW()
+        WHERE merchant_id = #{merchantId}
+          AND version = #{version}
+    </update>
+
+    <update id="decreaseBalanceWithVersion">
+        UPDATE merchant_account
+        SET balance = balance - #{amount},
+            version = version + 1,
+            updated_at = NOW()
+        WHERE merchant_id = #{merchantId}
+          AND version = #{version}
+          AND balance >= #{amount}
+    </update>
+
+</mapper>

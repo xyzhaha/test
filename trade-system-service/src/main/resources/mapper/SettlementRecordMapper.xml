@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.tradesystem.merchant.infrastructure.mapper.SettlementRecordMapper">
+
+    <resultMap id="SettlementRecordResultMap" type="com.example.tradesystem.merchant.domain.model.SettlementRecord">
+        <id property="settlementId" column="settlement_id"/>
+        <result property="merchantId" column="merchant_id"/>
+        <result property="settlementDate" column="settlement_date"/>
+        <result property="totalSales" column="total_sales" typeHandler="com.example.tradesystem.user.infrastructure.mapper.MoneyTypeHandler"/>
+        <result property="totalReceived" column="total_received" typeHandler="com.example.tradesystem.user.infrastructure.mapper.MoneyTypeHandler"/>
+        <result property="difference" column="difference" typeHandler="com.example.tradesystem.user.infrastructure.mapper.MoneyTypeHandler"/>
+        <result property="status" column="status" typeHandler="org.apache.ibatis.type.EnumTypeHandler"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <insert id="insert">
+        INSERT INTO settlement_record (settlement_id, merchant_id, settlement_date, total_sales, total_received, difference, status)
+        VALUES (#{settlementId}, #{merchantId}, #{settlementDate}, #{totalSales, typeHandler=com.example.tradesystem.user.infrastructure.mapper.MoneyTypeHandler}, #{totalReceived, typeHandler=com.example.tradesystem.user.infrastructure.mapper.MoneyTypeHandler}, #{difference, typeHandler=com.example.tradesystem.user.infrastructure.mapper.MoneyTypeHandler}, #{status, typeHandler=org.apache.ibatis.type.EnumTypeHandler})
+    </insert>
+
+    <select id="selectByMerchantAndDate" resultMap="SettlementRecordResultMap">
+        SELECT settlement_id, merchant_id, settlement_date, total_sales, total_received, difference, status, created_at
+        FROM settlement_record
+        WHERE merchant_id = #{merchantId}
+          AND settlement_date = #{settlementDate}
+    </select>
+
+    <select id="selectByMerchantId" resultMap="SettlementRecordResultMap">
+        SELECT settlement_id, merchant_id, settlement_date, total_sales, total_received, difference, status, created_at
+        FROM settlement_record
+        WHERE merchant_id = #{merchantId}
+        ORDER BY settlement_date DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="countByMerchantId" resultType="long">
+        SELECT COUNT(*)
+        FROM settlement_record
+        WHERE merchant_id = #{merchantId}
+    </select>
+
+</mapper>

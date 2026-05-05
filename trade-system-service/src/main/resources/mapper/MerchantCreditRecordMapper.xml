@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.tradesystem.merchant.infrastructure.mapper.MerchantCreditRecordMapper">
+
+    <resultMap id="MerchantCreditRecordResultMap" type="com.example.tradesystem.merchant.domain.model.MerchantCreditRecord">
+        <id property="creditId" column="credit_id"/>
+        <result property="merchantId" column="merchant_id"/>
+        <result property="amount" column="amount" typeHandler="com.example.tradesystem.user.infrastructure.mapper.MoneyTypeHandler"/>
+        <result property="orderId" column="order_id"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <insert id="insert">
+        INSERT INTO merchant_credit_record (credit_id, merchant_id, amount, order_id)
+        VALUES (#{creditId}, #{merchantId}, #{amount, typeHandler=com.example.tradesystem.user.infrastructure.mapper.MoneyTypeHandler}, #{orderId})
+    </insert>
+
+    <select id="selectByOrderId" resultMap="MerchantCreditRecordResultMap">
+        SELECT credit_id, merchant_id, amount, order_id, created_at
+        FROM merchant_credit_record
+        WHERE order_id = #{orderId}
+        LIMIT 1
+    </select>
+
+    <select id="sumAmountByDateRange" resultType="java.math.BigDecimal">
+        SELECT COALESCE(SUM(amount), 0)
+        FROM merchant_credit_record
+        WHERE merchant_id = #{merchantId}
+          AND DATE(created_at) &gt;= #{startDate}
+          AND DATE(created_at) &lt;= #{endDate}
+    </select>
+
+    <select id="selectByMerchantId" resultMap="MerchantCreditRecordResultMap">
+        SELECT credit_id, merchant_id, amount, order_id, created_at
+        FROM merchant_credit_record
+        WHERE merchant_id = #{merchantId}
+        ORDER BY created_at DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+</mapper>

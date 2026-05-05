@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.tradesystem.trade.infrastructure.mapper.OrderMapper">
+
+    <resultMap id="OrderResultMap" type="com.example.tradesystem.trade.domain.model.Order">
+        <id property="orderId" column="order_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="merchantId" column="merchant_id"/>
+        <result property="status" column="status" typeHandler="org.apache.ibatis.type.EnumTypeHandler"/>
+        <result property="totalAmount" column="total_amount" typeHandler="com.example.tradesystem.user.infrastructure.mapper.MoneyTypeHandler"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="completedAt" column="completed_at"/>
+        <result property="failureReason" column="failure_reason"/>
+        <result property="version" column="version"/>
+    </resultMap>
+
+    <insert id="insert">
+        INSERT INTO orders (order_id, user_id, merchant_id, status, total_amount, created_at, version)
+        VALUES (#{orderId}, #{userId}, #{merchantId}, #{status, typeHandler=org.apache.ibatis.type.EnumTypeHandler}, #{totalAmount, typeHandler=com.example.tradesystem.user.infrastructure.mapper.MoneyTypeHandler}, #{createdAt}, #{version})
+    </insert>
+
+    <select id="selectById" resultMap="OrderResultMap">
+        SELECT order_id, user_id, merchant_id, status, total_amount, created_at, completed_at, failure_reason, version
+        FROM orders
+        WHERE order_id = #{orderId}
+    </select>
+
+    <update id="updateStatus">
+        UPDATE orders
+        SET status = #{status, typeHandler=org.apache.ibatis.type.EnumTypeHandler},
+            completed_at = #{completedAt},
+            failure_reason = #{failureReason},
+            updated_at = NOW()
+        WHERE order_id = #{orderId}
+    </update>
+
+    <select id="selectByUserId" resultMap="OrderResultMap">
+        SELECT order_id, user_id, merchant_id, status, total_amount, created_at, completed_at, failure_reason, version
+        FROM orders
+        WHERE user_id = #{userId}
+        ORDER BY created_at DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="selectByMerchantId" resultMap="OrderResultMap">
+        SELECT order_id, user_id, merchant_id, status, total_amount, created_at, completed_at, failure_reason, version
+        FROM orders
+        WHERE merchant_id = #{merchantId}
+        ORDER BY created_at DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="countByUserId" resultType="long">
+        SELECT COUNT(*)
+        FROM orders
+        WHERE user_id = #{userId}
+    </select>
+
+    <select id="countByMerchantId" resultType="long">
+        SELECT COUNT(*)
+        FROM orders
+        WHERE merchant_id = #{merchantId}
+    </select>
+
+    <select id="selectTimeoutOrders" resultMap="OrderResultMap">
+        SELECT order_id, user_id, merchant_id, status, total_amount, created_at, completed_at, failure_reason, version
+        FROM orders
+        WHERE status = #{status, typeHandler=org.apache.ibatis.type.EnumTypeHandler}
+          AND created_at &lt; #{timeoutThreshold}
+        ORDER BY created_at ASC
+        LIMIT #{limit}
+    </select>
+
+</mapper>

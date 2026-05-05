@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.tradesystem.common.infrastructure.mapper.ExceptionRecordMapper">
+
+    <resultMap id="ExceptionRecordResultMap" type="com.example.tradesystem.common.model.ExceptionRecord">
+        <id property="exceptionId" column="exception_id"/>
+        <result property="businessType" column="business_type"/>
+        <result property="businessId" column="business_id"/>
+        <result property="errorMessage" column="error_message"/>
+        <result property="stackTrace" column="stack_trace"/>
+        <result property="status" column="status"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <insert id="insert">
+        INSERT INTO exception_record (exception_id, business_type, business_id, error_message, stack_trace, status)
+        VALUES (#{exceptionId}, #{businessType}, #{businessId}, #{errorMessage}, #{stackTrace}, #{status})
+    </insert>
+
+    <select id="selectById" resultMap="ExceptionRecordResultMap">
+        SELECT exception_id, business_type, business_id, error_message, stack_trace, status, created_at
+        FROM exception_record
+        WHERE exception_id = #{exceptionId}
+    </select>
+
+    <select id="selectPendingList" resultMap="ExceptionRecordResultMap">
+        SELECT exception_id, business_type, business_id, error_message, stack_trace, status, created_at
+        FROM exception_record
+        WHERE status = 'PENDING'
+        ORDER BY created_at DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="countPending" resultType="long">
+        SELECT COUNT(*)
+        FROM exception_record
+        WHERE status = 'PENDING'
+    </select>
+
+    <update id="updateStatusToResolved">
+        UPDATE exception_record
+        SET status = 'RESOLVED'
+        WHERE exception_id = #{exceptionId}
+    </update>
+
+</mapper>
